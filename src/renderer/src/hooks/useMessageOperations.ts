@@ -183,12 +183,12 @@ export function useMessageOperations(topic: Topic) {
    * Dispatches regenerateAssistantResponseThunk.
    */
   const regenerateAssistantMessage = useCallback(
-    async (message: Message, assistant: Assistant) => {
+    async (message: Message, assistant: Assistant, newModel: Model) => {
       if (message.role !== 'assistant') {
         console.warn('regenerateAssistantMessage should only be called for assistant messages.')
         return
       }
-      await dispatch(regenerateAssistantResponseThunk(topic.id, message, assistant))
+      await dispatch(regenerateAssistantResponseThunk(topic.id, message, assistant, newModel))
     },
     [dispatch, topic.id] // topic object needed by thunk
   )
