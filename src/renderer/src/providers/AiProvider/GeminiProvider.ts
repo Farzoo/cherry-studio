@@ -409,6 +409,11 @@ export default class GeminiProvider extends BaseProvider {
       )
       if (toolResults && toolResults.length > 0) {
         history.push(messageContents)
+        const assistantToolCallMessage: Content = {
+          role: 'model',
+          parts: [{ text: content }]
+        }
+        history.push(assistantToolCallMessage)
         const newChat = this.sdk.chats.create({
           model: model.id,
           config: generateContentConfig,
