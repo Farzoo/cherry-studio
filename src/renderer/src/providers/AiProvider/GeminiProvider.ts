@@ -408,7 +408,9 @@ export default class GeminiProvider extends BaseProvider {
         isVisionModel(model)
       )
       if (toolResults && toolResults.length > 0) {
-        history.push(messageContents)
+        if (idx === 0) {
+          history.push(messageContents)
+        }
         const assistantToolCallMessage: Content = {
           role: 'model',
           parts: [{ text: content }]
@@ -426,6 +428,7 @@ export default class GeminiProvider extends BaseProvider {
             abortSignal: abortController.signal
           }
         })
+        history.push(...(toolResults as Content[]))
         await processStream(newStream, idx + 1)
       }
     }
