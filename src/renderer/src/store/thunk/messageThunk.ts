@@ -989,7 +989,7 @@ export const resendUserMessageWithEditThunk =
  * Thunk to regenerate a specific assistant response.
  */
 export const regenerateAssistantResponseThunk =
-  (topicId: Topic['id'], assistantMessageToRegenerate: Message, assistant: Assistant) =>
+  (topicId: Topic['id'], assistantMessageToRegenerate: Message, assistant: Assistant, newModel: Model) =>
   async (dispatch: AppDispatch, getState: () => RootState) => {
     console.log(
       `[regenerateAssistantResponseThunk] Regenerating response for assistant message ${assistantMessageToRegenerate.id} in topic ${topicId}`
@@ -1010,7 +1010,10 @@ export const regenerateAssistantResponseThunk =
       }
 
       // 3. Verify the assistant message itself exists in entities
-      const messageToResetEntity = state.messages.entities[assistantMessageToRegenerate.id]
+      const messageToResetEntity = {
+        ...state.messages.entities[assistantMessageToRegenerate.id],
+        model: newModel
+      }
       if (!messageToResetEntity) {
         // No need to check topicId again as selector implicitly handles it
         console.error(

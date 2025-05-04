@@ -50,7 +50,6 @@ const MessageMenubar: FC<Props> = (props) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const [isTranslating, setIsTranslating] = useState(false)
-  const [showRegenerateTooltip, setShowRegenerateTooltip] = useState(false)
   const [showDeleteTooltip, setShowDeleteTooltip] = useState(false)
   // const assistantModel = assistant?.model
   const {
@@ -344,13 +343,13 @@ const MessageMenubar: FC<Props> = (props) => {
   const onRegenerate = async (e: React.MouseEvent | undefined) => {
     e?.stopPropagation?.()
     if (loading) return
-    // No need to reset or edit the message anymore
-    // const selectedModel = isGrouped ? model : assistantModel
-    // const _message = resetAssistantMessage(message, selectedModel)
-    // editMessage(message.id, { ..._message }) // REMOVED
+    const modelToPreselect = message.model || model || assistant.model
 
-    // Call the function from the hook
-    regenerateAssistantMessage(message, assistant)
+    const selectedModel = await SelectModelPopup.show({ model: modelToPreselect })
+
+    if (!selectedModel) return
+
+    regenerateAssistantMessage(message, assistant, selectedModel)
   }
 
   const onMentionModel = async (e: React.MouseEvent) => {
@@ -392,22 +391,11 @@ const MessageMenubar: FC<Props> = (props) => {
         </ActionButton>
       </Tooltip>
       {isAssistantMessage && (
-        <Popconfirm
-          title={t('message.regenerate.confirm')}
-          okButtonProps={{ danger: true }}
-          icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-          onConfirm={onRegenerate}
-          onOpenChange={(open) => open && setShowRegenerateTooltip(false)}>
-          <Tooltip
-            title={t('common.regenerate')}
-            mouseEnterDelay={0.8}
-            open={showRegenerateTooltip}
-            onOpenChange={setShowRegenerateTooltip}>
-            <ActionButton className="message-action-button">
-              <RefreshCw size={16} />
-            </ActionButton>
-          </Tooltip>
-        </Popconfirm>
+        <Tooltip title={t('common.regenerate')} mouseEnterDelay={0.8}>
+          <ActionButton className="message-action-button" onClick={onRegenerate}>
+            <RefreshCw size={16} />
+          </ActionButton>
+        </Tooltip>
       )}
       {isAssistantMessage && (
         <Tooltip title={t('message.mention.title')} mouseEnterDelay={0.8}>
