@@ -23,8 +23,28 @@ export const findMainTextBlocks = (message: Message): MainTextMessageBlock[] => 
   const textBlocks: MainTextMessageBlock[] = []
   for (const blockId of message.blocks) {
     const block = messageBlocksSelectors.selectById(state, blockId)
-    if (block && block.type === MessageBlockType.MAIN_TEXT) {
-      textBlocks.push(block as MainTextMessageBlock)
+    if (block) {
+      if (block.type === MessageBlockType.MAIN_TEXT) {
+        textBlocks.push(block as MainTextMessageBlock)
+      } else if (block.type === MessageBlockType.TOOL) {
+        if (!block.metadata?.rawMcpToolResponse) {
+          continue
+        }
+        const { tool, ...restRawMcpToolResponse } = block.metadata.rawMcpToolResponse
+        const { description, id, serverId, ...filteredTool } = tool
+        const newContent = {
+          rawMcpToolResponse: {
+            ...restRawMcpToolResponse,
+            tool: filteredTool
+          }
+        }
+        const newBlock = {
+          ...block,
+          type: MessageBlockType.MAIN_TEXT,
+          content: JSON.stringify(newContent)
+        }
+        textBlocks.push(newBlock as MainTextMessageBlock)
+      }
     }
   }
   return textBlocks
